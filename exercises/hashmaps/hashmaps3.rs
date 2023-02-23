@@ -18,6 +18,7 @@
 
 use std::collections::HashMap;
 
+#[derive(Debug)]
 // A structure to store team name and its goal details.
 struct Team {
     name: String,
@@ -27,9 +28,11 @@ struct Team {
 
 fn build_scores_table(results: String) -> HashMap<String, Team> {
     // The name of the team is the key and its associated struct is the value.
-    let mut scores: HashMap<String, Team> = HashMap::new();
 
+    let mut scores: HashMap<String, Team> = HashMap::new();
+    println!("{}", &results);
     for r in results.lines() {
+        println!("hello");
         let v: Vec<&str> = r.split(',').collect();
         let team_1_name = v[0].to_string();
         let team_1_score: u8 = v[2].parse().unwrap();
@@ -40,10 +43,18 @@ fn build_scores_table(results: String) -> HashMap<String, Team> {
         // will be number of goals conceded from team_2, and similarly
         // goals scored by team_2 will be the number of goals conceded by
         // team_1.
-        scores.entry( team_1_name).or_insert(Team{name: team_2_name, goals_scored: team_1_score, goals_conceded: team_2_score});
-        scores.entry( team_2_name).or_insert(Team{name: team_1_name, goals_scored: team_2_score, goals_conceded: team_1_score});
 
 
+        let mut team1 = scores.entry( team_1_name).or_insert(Team{name: v[0].to_string(), goals_scored:0, goals_conceded: 0, });
+ 
+        team1.goals_scored += team_1_score;
+        team1.goals_conceded += team_2_score;
+        
+ 
+        let team2 = scores.entry( team_2_name).or_insert(Team{name: v[1].to_string(), goals_scored: 0, goals_conceded: 0, });
+        team2.goals_scored += team_2_score;
+        team2.goals_conceded += team_1_score;
+        
     }
     scores
 }
@@ -64,6 +75,7 @@ mod tests {
     #[test]
     fn build_scores() {
         let scores = build_scores_table(get_results());
+        println!("{:?}", scores);
 
         let mut keys: Vec<&String> = scores.keys().collect();
         keys.sort();
